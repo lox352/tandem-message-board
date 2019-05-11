@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "ProgrammingChallenge": {
+    "Tandem.MessageBoard.Api": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api/values",

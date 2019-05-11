@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ProgrammingChallenge.Controllers
+namespace Tandem.MessageBoard.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class MessageController : ControllerBase
     {
         // GET api/values
         [HttpGet]

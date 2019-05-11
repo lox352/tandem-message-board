@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace ProgrammingChallenge
+namespace Tandem.MessageBoard.Api
 {
     public class Program
     {
