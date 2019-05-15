@@ -9,7 +9,7 @@ namespace Tandem.MessageBoard.Api.Models
 
         public string UserId { get; set; }
 
-        [JsonProperty(PropertyName = "Message")]
+        [JsonProperty(PropertyName = "message")]
         public string MessageContent { get; set; }
 
         public DateTimeOffset CreatedDate { get; set; }

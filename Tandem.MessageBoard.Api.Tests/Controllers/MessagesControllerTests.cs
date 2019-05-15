@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Collections.Generic;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace Tandem.MessageBoard.Api.Tests
 {
@@ -86,19 +87,17 @@ namespace Tandem.MessageBoard.Api.Tests
             // Act
             var response = await client.PostAsync("/messages", stringContent);
             var responseContent = await response.Content.ReadAsStringAsync();
-            var deserialisedResponseContent = JsonConvert.DeserializeObject<dynamic>(responseContent);
+            JObject deserialisedResponseContent = JObject.Parse(responseContent);
 
             // Assert
-            deserialisedResponseContent.Message.Should().Be(message);
-
-            deserialisedResponseContent.UserId.Should().Be(userId);
-
-            deserialisedResponseContent.CreateDate.Should().Not().BeNull();
-            deserialisedResponseContent.CreateDate.Should().Not().Be(default(DateTimeOffset).ToString());
-
-            deserialisedResponseContent.MessageId.Should().Not().BeNull();
-            deserialisedResponseContent.MessageId.Should().Not().Be("");
-            deserialisedResponseContent.CreateDate.Should().Not().Be(default(Guid).ToString());
+            ((string)deserialisedResponseContent["message"])
+                .Should().Be(message);
+            ((string)deserialisedResponseContent["userId"])
+                .Should().Be(userId);
+            ((DateTimeOffset)deserialisedResponseContent["createdDate"])
+                .Should().NotBe(default(DateTimeOffset));
+            ((Guid)deserialisedResponseContent["messageId"])
+                .Should().NotBe(default(Guid));
         }
 
         private string GenerateSerialisedMessageJson(string userId, string messageContent)
