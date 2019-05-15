@@ -93,9 +93,9 @@ namespace Tandem.MessageBoard.Api.Tests
             ((string)deserialisedResponseContent["userId"])
                 .Should().Be(userId);
             ((DateTimeOffset)deserialisedResponseContent["createdDate"])
-                .Should().NotBe(default(DateTimeOffset));
+                .Should().NotBe(default);
             ((Guid)deserialisedResponseContent["messageId"])
-                .Should().NotBe(default(Guid));
+                .Should().NotBe(default);
         }
 
         [Theory]
@@ -136,7 +136,7 @@ namespace Tandem.MessageBoard.Api.Tests
             await client.PostAsync("/messages", stringContent);
 
             // Act
-            var response = await client.GetAsync($"messages?userId={queryUserId}");
+            var response = await client.GetAsync($"messages?userId=simon");
             var responseContent = await response.Content.ReadAsStringAsync();
             JObject result = JObject.Parse(responseContent);
 
@@ -147,11 +147,11 @@ namespace Tandem.MessageBoard.Api.Tests
             var message = (JObject)messages[0];
             ((string)(message)["message"]).Should().Be("Just a bridge...");
             ((string)(message)["userId"]).Should().Be("simon");
-            ((Guid)(message)["messageId"]).Should().NotBe(default(Guid));
+            ((Guid)(message)["messageId"]).Should().NotBe(default);
 
             const string Iso8601Regex = "^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$\n\n";
             ((string)(message)["createdDate"]).Should().MatchRegex(Iso8601Regex);
-            ((Guid)(message)["createdDate"]).Should().NotBe(default(DateTimeOffset));
+            ((DateTimeOffset)(message)["createdDate"]).Should().NotBe(default);
         }
 
         [Fact]
@@ -187,8 +187,9 @@ namespace Tandem.MessageBoard.Api.Tests
                 { "userId", userId },
                 { "message", messageContent }
             };
+
             var serialisedObject = JsonConvert.SerializeObject(objectToPost);
-            return new StringContent(serialisedObject, Encoding.UTF8, "application/json"); ;
+            return new StringContent(serialisedObject, Encoding.UTF8, "application/json");         
         }
     }
 }
