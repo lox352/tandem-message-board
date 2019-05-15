@@ -7,6 +7,7 @@ namespace Tandem.MessageBoard.Api.Repositories
     public interface IMessagesRepository
     {
         void SaveMessage(Message message);
+        List<Message> RetrieveMessagesByUserId(string userId);
     }
 
     public class MessageRepository : IMessagesRepository
@@ -16,6 +17,11 @@ namespace Tandem.MessageBoard.Api.Repositories
         public void SaveMessage(Message message)
         {
             AddMessageByUserId(message);
+        }
+
+        public List<Message> RetrieveMessagesByUserId(string userId)
+        {
+            throw new NotImplementedException();
         }
 
         private void AddMessageByUserId(Message message)

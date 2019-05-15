@@ -32,7 +32,12 @@ namespace Tandem.MessageBoard.Api.Services
 
         public List<Message> GetMessagesByUserId(string userId)
         {
-            throw new NotImplementedException();
+            var messages = _messagesRepository.RetrieveMessagesByUserId(userId);
+            foreach (var message in messages)
+            {
+                message.UserId = userId;
+            }
+            return messages;
         }
     }
 }
