@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tandem.MessageBoard.Api.Repositories;
 using Tandem.MessageBoard.Api.Services;
 
 namespace Tandem.MessageBoard.Api
@@ -20,6 +21,7 @@ namespace Tandem.MessageBoard.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IMessagesService, MessagesService>();
+            services.AddSingleton<IMessagesRepository, MessageRepository>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
