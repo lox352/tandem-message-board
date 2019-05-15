@@ -1,42 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Tandem.MessageBoard.Api.Models;
 
 namespace Tandem.MessageBoard.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class MessagesController : ControllerBase
     {
-        // GET api/values
+        // GET /messages
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public ActionResult<IEnumerable<Message>> Get([FromQuery] string userId)
         {
-            return new string[] { "value1", "value2" };
+            throw new NotImplementedException();
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/values
+        // POST /messages
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post([FromBody] Message message)
         {
+            throw new NotImplementedException();
         }
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        // PUT /messages/{messageId}
+        [HttpPut("{messageId}")]
+        public void Put(int messageId, [FromBody] Message message) => throw new NotImplementedException();
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        // DELETE /messages/{messageId}
+        [HttpDelete("{messageId}")]
+        public void Delete(Guid messageId) => throw new NotImplementedException();
     }
 }
