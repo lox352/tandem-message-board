@@ -19,7 +19,7 @@ namespace Tandem.MessageBoard.Api.Controllers
 
         // GET /messages?userId={userId}
         [HttpGet]
-        public ActionResult<IEnumerable<Message>> Get([FromQuery] string userId)
+        public ActionResult<Messages> Get([FromQuery] string userId)
         {
             var messages = _messagesService.GetMessagesByUserId(userId);
             return messages;

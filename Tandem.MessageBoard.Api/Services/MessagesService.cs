@@ -8,7 +8,7 @@ namespace Tandem.MessageBoard.Api.Services
     public interface IMessagesService
     {
         Message AddMessage(Message message);
-        List<Message> GetMessagesByUserId(string userId);
+        Messages GetMessagesByUserId(string userId);
     }
 
     public class MessagesService : IMessagesService
@@ -30,14 +30,14 @@ namespace Tandem.MessageBoard.Api.Services
             return message;
         }
 
-        public List<Message> GetMessagesByUserId(string userId)
+        public Messages GetMessagesByUserId(string userId)
         {
-            var messages = _messagesRepository.RetrieveMessagesByUserId(userId);
+            var messages = _messagesRepository.GetMessagesByUserId(userId);
             foreach (var message in messages)
             {
                 message.UserId = userId;
             }
-            return messages;
+            return new Messages { MessagesList = messages };
         }
     }
 }
