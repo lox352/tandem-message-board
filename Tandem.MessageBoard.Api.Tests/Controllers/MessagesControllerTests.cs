@@ -29,13 +29,13 @@ namespace Tandem.MessageBoard.Api.Tests
         public async Task Post_BodyPropertiesShouldBeCaseInsensitive(string userIdPropertyName, string messagePropertyName)
         {
             // Arrange
+            var client = _factory.CreateClient();
+
             const string UserIdPropertyValue = "simon";
             const string MessagePropertyValue = "Hello darkness, my old friend, I've come to talk with you again";
 
             var serialisedObjectToPost = GeneratePostBody(userIdPropertyName, messagePropertyName);
             var stringContent = new StringContent(serialisedObjectToPost, Encoding.UTF8, "application/json");
-
-            var client = _factory.CreateClient();
 
             // Act
             var response = await client.PostAsync("/messages", stringContent);
@@ -59,10 +59,9 @@ namespace Tandem.MessageBoard.Api.Tests
         public async Task Post_ResponseShouldBeSuccessWithCorrectMediaTypeAndCharacterEncoding()
         {
             // Arrange
-            var serialisedObjectToPost = GenerateSerialisedMessageJson("some user", "some message");
-            var stringContent = new StringContent(serialisedObjectToPost, Encoding.UTF8, "application/json");
-
             var client = _factory.CreateClient();
+
+            var stringContent = GenerateSerialisedMessageStringContent("some user", "some message");
 
             // Act
             var response = await client.PostAsync("/messages", stringContent);
@@ -79,10 +78,9 @@ namespace Tandem.MessageBoard.Api.Tests
         public async Task Post_ResponseBodyShouldDeserialiseWithExpectedProperties(string userId, string message)
         {
             // Arrange
-            var serialisedObjectToPost = GenerateSerialisedMessageJson(userId, message);
-            var stringContent = new StringContent(serialisedObjectToPost, Encoding.UTF8, "application/json");
-
             var client = _factory.CreateClient();
+
+            var stringContent = GenerateSerialisedMessageStringContent(userId, message);
 
             // Act
             var response = await client.PostAsync("/messages", stringContent);
@@ -100,7 +98,89 @@ namespace Tandem.MessageBoard.Api.Tests
                 .Should().NotBe(default(Guid));
         }
 
-        private string GenerateSerialisedMessageJson(string userId, string messageContent)
+        [Theory]
+        [InlineData("simon", "SIMON")]
+        [InlineData("ßimon", "Ssimon")]
+        [InlineData("GARFUNKEL", "garfunkel")]
+        public async Task Get_UserIdQueryParameterShouldBeCaseInsensitive(string savedUserId, string queryUserId)
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+
+            const string Message = "This is the sound of silence";
+
+            var stringContent = GenerateSerialisedMessageStringContent(savedUserId, Message);
+
+            await client.PostAsync("/messages", stringContent);
+
+            // Act
+            var response = await client.GetAsync($"messages?userId={queryUserId}");
+            var responseContent = await response.Content.ReadAsStringAsync();
+            JObject result = JObject.Parse(responseContent);
+
+            // Assert
+            var messages = (JArray)result["messages"];
+            messages.Count.Should().Be(1);
+            ((string)((JObject)messages[0])["message"]).Should().Be(Message);
+            ((string)((JObject)messages[0])["userId"]).Should().Be(queryUserId);
+        }
+
+        [Fact]
+        public async Task Get_UserIdWithSingleMessage()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+
+            var stringContent = GenerateSerialisedMessageStringContent("simon", "Just a bridge...");
+
+            await client.PostAsync("/messages", stringContent);
+
+            // Act
+            var response = await client.GetAsync($"messages?userId={queryUserId}");
+            var responseContent = await response.Content.ReadAsStringAsync();
+            JObject result = JObject.Parse(responseContent);
+
+            // Assert
+            var messages = (JArray)result["messages"];
+            messages.Count.Should().Be(1);
+
+            var message = (JObject)messages[0];
+            ((string)(message)["message"]).Should().Be("Just a bridge...");
+            ((string)(message)["userId"]).Should().Be("simon");
+            ((Guid)(message)["messageId"]).Should().NotBe(default(Guid));
+
+            const string Iso8601Regex = "^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$\n\n";
+            ((string)(message)["createdDate"]).Should().MatchRegex(Iso8601Regex);
+            ((Guid)(message)["createdDate"]).Should().NotBe(default(DateTimeOffset));
+        }
+
+        [Fact]
+        public async Task Get_UserIdWithMultipleMessages()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+
+            const string UserId = "simon";
+
+            var firstStringContent = GenerateSerialisedMessageStringContent(UserId, "Here's to you");
+            var secondStringContent = GenerateSerialisedMessageStringContent(UserId, "Mrs. Robinson");
+
+            await client.PostAsync("/messages", firstStringContent);
+            await client.PostAsync("/messages", secondStringContent);
+
+            // Act
+            var response = await client.GetAsync($"messages?userId={UserId}");
+            var responseContent = await response.Content.ReadAsStringAsync();
+            JObject result = JObject.Parse(responseContent);
+
+            // Assert
+            var messages = (JArray)result["messages"];
+            messages.Count.Should().Be(2);
+            ((string)((JObject)messages[0])["message"]).Should().Be("Here's to you");
+            ((string)((JObject)messages[1])["message"]).Should().Be("Mrs. Robinson");
+        }
+
+        private StringContent GenerateSerialisedMessageStringContent(string userId, string messageContent)
         {
             var objectToPost = new Dictionary<string, string>
             {
@@ -108,7 +188,7 @@ namespace Tandem.MessageBoard.Api.Tests
                 { "message", messageContent }
             };
             var serialisedObject = JsonConvert.SerializeObject(objectToPost);
-            return serialisedObject;
+            return new StringContent(serialisedObject, Encoding.UTF8, "application/json"); ;
         }
     }
 }
