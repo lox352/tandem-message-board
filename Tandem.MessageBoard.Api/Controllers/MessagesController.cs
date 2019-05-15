@@ -17,11 +17,12 @@ namespace Tandem.MessageBoard.Api.Controllers
             _messagesService = messagesService;
         }
 
-        // GET /messages
+        // GET /messages?userId={userId}
         [HttpGet]
         public ActionResult<IEnumerable<Message>> Get([FromQuery] string userId)
         {
-            throw new NotImplementedException();
+            var messages = _messagesService.GetMessagesByUserId(userId);
+            return messages;
         }
 
         // POST /messages

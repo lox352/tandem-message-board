@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Tandem.MessageBoard.Api.Models;
 using Tandem.MessageBoard.Api.Repositories;
 
@@ -7,6 +8,7 @@ namespace Tandem.MessageBoard.Api.Services
     public interface IMessagesService
     {
         Message AddMessage(Message message);
+        List<Message> GetMessagesByUserId(string userId);
     }
 
     public class MessagesService : IMessagesService
@@ -26,6 +28,11 @@ namespace Tandem.MessageBoard.Api.Services
             _messagesRepository.SaveMessage(message);
 
             return message;
+        }
+
+        public List<Message> GetMessagesByUserId(string userId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
