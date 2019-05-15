@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
 using System.Collections.Generic;
+using System;
 
 namespace Tandem.MessageBoard.Api.Tests
 {
@@ -34,16 +35,15 @@ namespace Tandem.MessageBoard.Api.Tests
             var stringContent = new StringContent(serialisedObjectToPost, Encoding.UTF8, "application/json");
 
             var client = _factory.CreateClient();
-            await client.PostAsync("/messages", stringContent);
 
             // Act
-            var response = await client.GetAsync("/messages?userId=simon");
-            var result = await response.Content.ReadAsStringAsync();
+            var response = await client.PostAsync("/messages", stringContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
 
             // Assert
-            result.Should().Contain("userId");
-            result.Should().Contain("message");
-
+            responseContent.Should().Contain("userId");
+            responseContent.Should().Contain("message");
+           
 
             string GeneratePostBody(string userId, string message) {
                 var objectToPost = new Dictionary<string, string>();
@@ -52,6 +52,64 @@ namespace Tandem.MessageBoard.Api.Tests
                 var serialisedObject = JsonConvert.SerializeObject(objectToPost);
                 return serialisedObject;
             }
+        }
+
+        [Fact]
+        public async Task Post_ResponseShouldBeSuccessWithCorrectMediaTypeAndCharacterEncoding()
+        {
+            // Arrange
+            var serialisedObjectToPost = GenerateSerialisedMessageJson("some user", "some message");
+            var stringContent = new StringContent(serialisedObjectToPost, Encoding.UTF8, "application/json");
+
+            var client = _factory.CreateClient();
+
+            // Act
+            var response = await client.PostAsync("/messages", stringContent);
+
+            // Assert
+            response.IsSuccessStatusCode.Should().BeTrue();
+            response.Content.Headers.ContentType.MediaType.Should().Be("application/json");
+            response.Content.Headers.ContentType.CharSet.Should().Be("utf-8");
+        }
+
+        [Theory]
+        [InlineData("simon", "G'day darkness")]
+        [InlineData("garfunkel", "You're a great friend indeed")]
+        public async Task Post_ResponseBodyShouldDeserialiseWithExpectedProperties(string userId, string message)
+        {
+            // Arrange
+            var serialisedObjectToPost = GenerateSerialisedMessageJson(userId, message);
+            var stringContent = new StringContent(serialisedObjectToPost, Encoding.UTF8, "application/json");
+
+            var client = _factory.CreateClient();
+
+            // Act
+            var response = await client.PostAsync("/messages", stringContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var deserialisedResponseContent = JsonConvert.DeserializeObject<dynamic>(responseContent);
+
+            // Assert
+            deserialisedResponseContent.Message.Should().Be(message);
+
+            deserialisedResponseContent.UserId.Should().Be(userId);
+
+            deserialisedResponseContent.CreateDate.Should().Not().BeNull();
+            deserialisedResponseContent.CreateDate.Should().Not().Be(default(DateTimeOffset).ToString());
+
+            deserialisedResponseContent.MessageId.Should().Not().BeNull();
+            deserialisedResponseContent.MessageId.Should().Not().Be("");
+            deserialisedResponseContent.CreateDate.Should().Not().Be(default(Guid).ToString());
+        }
+
+        private string GenerateSerialisedMessageJson(string userId, string messageContent)
+        {
+            var objectToPost = new Dictionary<string, string>
+            {
+                { "userId", userId },
+                { "message", messageContent }
+            };
+            var serialisedObject = JsonConvert.SerializeObject(objectToPost);
+            return serialisedObject;
         }
     }
 }
