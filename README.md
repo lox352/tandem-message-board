@@ -10,3 +10,6 @@
 - Any sophosticated form of error handling
 - A database and an ORM
 - Any form of authentication or authorisation
+
+### Notes and comments
+I normally develop `dotnet` applications on a Windows machine using Visual Studio and Resharper. I no longer have access to a PC, so this project was developed on a Mac, initially using VSCode and the dotnet CLI, before switching Visual Studio for Mac. I'm on holiday at the moment, so I've been working on it sporadically whenever I've been able to snatch a free moment. These two factors combine to make it difficult for me to estimate how many hours' of 'normal' work this represents, but I would guess about 2-3 hours.
