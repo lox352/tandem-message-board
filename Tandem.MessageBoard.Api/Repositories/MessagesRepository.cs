@@ -7,36 +7,49 @@ namespace Tandem.MessageBoard.Api.Repositories
     public interface IMessagesRepository
     {
         void SaveMessage(Message message);
-        List<Message> RetrieveMessagesByUserId(string userId);
+        List<Message> GetMessagesByUserId(string userId);
     }
 
     public class MessageRepository : IMessagesRepository
     {
-        private Dictionary<string, Dictionary<Guid, Message>> _messagesByUserId = new Dictionary<string, Dictionary<Guid, Message>>();
+        private Dictionary<string, List<Message>> _messagesByUserId = new Dictionary<string, List<Message>>();
 
         public void SaveMessage(Message message)
         {
             AddMessageByUserId(message);
         }
 
-        public List<Message> RetrieveMessagesByUserId(string userId)
+        public List<Message> GetMessagesByUserId(string userId)
         {
-            throw new NotImplementedException();
+            return RetrieveMessagesByUserId(userId);
+        }
+
+        private List<Message> RetrieveMessagesByUserId(string queryUserId)
+        {
+            var userId = queryUserId.ToLowerInvariant();
+            if (_messagesByUserId.ContainsKey(userId))
+            {
+                var messages = _messagesByUserId[userId];
+                return messages;
+            }
+            else
+            {
+                return new List<Message>();
+            }
         }
 
         private void AddMessageByUserId(Message message)
         {
-            if (_messagesByUserId.ContainsKey(message.UserId))
+            var userId = message.UserId.ToLowerInvariant();
+            if (_messagesByUserId.ContainsKey(userId))
             {
-                var messagesById = _messagesByUserId[message.UserId];
-                messagesById[message.MessageId] = message;
+                var messages = _messagesByUserId[userId];
+                messages.Add(message);
             } 
             else
             {
-                _messagesByUserId.Add(
-                    message.UserId, 
-                    new Dictionary<Guid, Message>() { { message.MessageId, message } }
-                    );
+                var messages = new List<Message>() { message };
+                _messagesByUserId.Add(userId, messages);
             }
         }
     }
