@@ -8,7 +8,7 @@ namespace Tandem.MessageBoard.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MessageController : ControllerBase
+    public class MessagesController : ControllerBase
     {
         // GET api/values
         [HttpGet]

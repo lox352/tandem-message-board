@@ -10,10 +10,10 @@ using System;
 
 namespace Tandem.MessageBoard.Api.Tests
 {
-    public class MessageControllerTests : IClassFixture<WebApplicationFactory<Tandem.MessageBoard.Api.Startup>>
+    public class MessagesControllerTests : IClassFixture<WebApplicationFactory<Tandem.MessageBoard.Api.Startup>>
     {
         private readonly WebApplicationFactory<Tandem.MessageBoard.Api.Startup> _factory;
-        public MessageControllerTests(WebApplicationFactory<Tandem.MessageBoard.Api.Startup> factory)
+        public MessagesControllerTests(WebApplicationFactory<Tandem.MessageBoard.Api.Startup> factory)
         {
             _factory = factory;
         }
