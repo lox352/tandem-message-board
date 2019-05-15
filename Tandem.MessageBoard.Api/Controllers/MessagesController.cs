@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Tandem.MessageBoard.Api.Models;
+using Tandem.MessageBoard.Api.Services;
 
 namespace Tandem.MessageBoard.Api.Controllers
 {
@@ -9,6 +10,13 @@ namespace Tandem.MessageBoard.Api.Controllers
     [ApiController]
     public class MessagesController : ControllerBase
     {
+        private readonly IMessagesService _messagesService;
+
+        public MessagesController(IMessagesService messagesService)
+        {
+            _messagesService = messagesService;
+        }
+
         // GET /messages
         [HttpGet]
         public ActionResult<IEnumerable<Message>> Get([FromQuery] string userId)
@@ -18,9 +26,10 @@ namespace Tandem.MessageBoard.Api.Controllers
 
         // POST /messages
         [HttpPost]
-        public void Post([FromBody] Message message)
+        public ActionResult<Message> Post([FromBody] Message message)
         {
-            throw new NotImplementedException();
+            var response = _messagesService.AddMessage(message);
+            return response;
         }
 
         // PUT /messages/{messageId}
